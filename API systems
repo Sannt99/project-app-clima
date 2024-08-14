@@ -1,0 +1,62 @@
+
+chave = '3450fa9243e3c3483d765a1ef5eb6ac7'
+cidade = 'Sydney'
+api_link = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}'.format (cidade,chave)
+
+#fazendo chamada da api usando request
+
+r = requests.get(api_link)
+
+#convertendo os dados presentes na variavel r em dicionario
+
+dados = r.json()
+
+print(dados)
+print('*'*45)
+
+#Obtendo cidade,pais e horas
+
+pais_codigos = dados['sys']['country']
+
+#cidade
+cidade_fuso = pytz.country_timezones[pais_codigos]
+
+#pais
+pais = pytz.country_names[pais_codigos]
+
+#data
+data = pytz.timezone(cidade_fuso[0])
+
+cidade_horas = datetime.now(data)
+cidade_horas = cidade_horas.strftime("%d %m %Y | %H:%M:%S %p")
+
+print(data)
+#tempo
+tempo = dados ['main']['temp']
+pressao = dados ['main']['pressure']
+umidade = dados ['main']['humidity']
+velocidade = dados ['wind']['speed']
+clima = dados ['weather'][0]['description']
+#print(clima)
+#print(tempo)
+#print(pressao)
+#print(velocidade)
+#print (umidade)
+#print(cidade_horas)
+#print(cidade_fuso)
+#print(pais)
+
+#mudando informaçoes
+
+
+
+def pais_para_continente(i):
+    pais_alpha = pc.country_name_to_country_alpha2(i)
+    pais_continent_code = pc.country_alpha2_to_continent_code(pais_alpha)
+    pais_continent_nome = pc.convert_continent_code_to_continent_name(pais_continent_code)
+    
+    return pais_continent_nome
+
+continente = pais_para_continente(pais)
+
+print(continente)
