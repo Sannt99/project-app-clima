@@ -1,0 +1,149 @@
+import tkinter
+from tkinter import *
+from tkinter import ttk
+from PIL import Image,ImageTk
+
+#importações
+import requests
+from datetime import datetime
+import json
+import pytz
+import pycountry_convert as pc
+
+#cores
+co0 =  "#444466" #preta
+co1 = "#feffff" #branca
+co2 = "#0000FF" #azul
+
+fundo_dia = "#6cc4cc"
+fundo_noite = "#484f60"
+fundo_tarde = "#bfb86d"
+fundo = fundo_dia
+
+
+
+janela = Tk()
+janela.title('Climinha')
+janela.geometry('320x350')
+janela.configure(bg=fundo)
+
+ttk.Separator(janela, orient=HORIZONTAL).grid(row=0,columnspan=1, ipadx=157)
+
+
+#criando frames
+Frame_top = Frame(janela,width=320,height=50,bg=co1,pady=0,padx=0)
+Frame_top.grid(row=1,column=0)
+
+Frame_corpo = Frame(janela,width=320,height=300,bg=fundo,pady=12,padx=0)
+Frame_corpo.grid(row=2,column=0,sticky=NW)
+
+estilo = ttk.Style(janela)
+estilo.theme_use('clam')
+
+#função que retorna as infos
+def informacao():
+    
+
+    chave = '3450fa9243e3c3483d765a1ef5eb6ac7'
+    cidade = e_local.get()
+    api_link = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}'.format (cidade,chave)
+
+    #fazendo chamada da api usando request
+
+    r = requests.get(api_link)
+
+    #convertendo os dados presentes na variavel r em dicionario
+
+    dados = r.json()
+
+    print(dados)
+    print('*'*45)
+
+    #Obtendo cidade,pais e horas
+
+    pais_codigos = dados['sys']['country']
+
+    #cidade
+    cidade_fuso = pytz.country_timezones[pais_codigos]
+
+    #pais
+    pais = pytz.country_names[pais_codigos]
+
+    #data
+    data = pytz.timezone(cidade_fuso[0])
+
+    cidade_horas = datetime.now(data)
+    cidade_horas = cidade_horas.strftime("%d %m %Y | %H:%M:%S %p")
+
+    print(data)
+    #tempo
+    tempo = dados ['main']['temp']
+    pressao = dados ['main']['pressure']
+    umidade = dados ['main']['humidity']
+    velocidade = dados ['wind']['speed']
+    clima = dados ['weather'][0]['description']
+    #print(clima)
+    #print(tempo)
+    #print(pressao)
+    #print(velocidade)
+    #print (umidade)
+    #print(cidade_horas)
+    #print(cidade_fuso)
+    #print(pais)
+
+    #mudando informaçoes
+
+
+
+    def pais_para_continente(i):
+        pais_alpha = pc.country_name_to_country_alpha2(i)
+        pais_continent_code = pc.country_alpha2_to_continent_code(pais_alpha)
+        pais_continent_nome = pc.convert_continent_code_to_continent_name(pais_continent_code)
+        
+        return pais_continent_nome
+
+    continente = pais_para_continente(pais)
+
+    #print(continente)
+
+#Configurando frame top
+
+e_local = Entry(Frame_top,width=20,justify='left',font=("Times New Roman",14),highlightthickness=1,relief='solid')
+e_local.place(x=15,y=10)
+
+b_ver = Button(Frame_top,command=informacao,text='ver clima',bg=co1,fg=co2,font=("Ivy 9 bold"),relief='raised',overrelief=RIDGE)
+b_ver.place(x=230,y=10)
+
+#Config frame corpo
+
+L_cidade = Label (Frame_corpo, text='Santo André - Brazil/South America', anchor='center',bg= fundo,fg= co1,font=("Ivy 9 bold"))
+L_cidade.place(x=10,y=4)
+
+L_data = Label (Frame_corpo, text='13/08/2024 - 12:00 AM', anchor='center',bg= fundo,fg= co1,font=("Arial 10"))
+L_data.place(x=10,y=54)
+
+L_umidade = Label (Frame_corpo, text='84', anchor='center',bg= fundo,fg= co1,font=("Arial 45"))
+L_umidade.place(x=10,y=100)
+
+L_u_simbolo = Label (Frame_corpo, text='%', anchor='center',bg= fundo,fg= co1,font=("Arial 10 bold"))
+L_u_simbolo.place(x=85,y=100)
+
+L_u_nome = Label (Frame_corpo, text='Umidade', anchor='center',bg= fundo,fg= co1,font=("Arial 12"))
+L_u_nome.place(x=85,y=140)
+
+L_pressao = Label (Frame_corpo, text='Pressão', anchor='center',bg= fundo,fg= co1,font=("Arial 10"))
+L_pressao.place(x=10,y=180)
+
+L_descrição = Label (Frame_corpo, text='Nublado', anchor='center',bg= fundo,fg= co1,font=("Arial 14"))
+L_descrição.place(x=160,y=200)
+
+#imagem = Image.open("images/sun64.png")
+#imagem = imagem.resize((130,130))
+#imagem = ImageTk.PhotoImage(imagem)
+
+#L_icon = Label (Frame_corpo,image= imagem,bg= fundo)
+#L_icon.place(x=160,y=50)
+
+
+
+janela.mainloop()
